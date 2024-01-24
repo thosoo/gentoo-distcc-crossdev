@@ -20,11 +20,18 @@ ARG KERNEL_VER
 ARG LIBC_VER
 ARG CROSSDEV_TARGET=ppc-unknown-linux-gnu
 
-# Create an overlay directory
-RUN mkdir -p /usr/local/portage
+# Manually create a crossdev repository
+RUN mkdir -p /var/db/repos/crossdev/{profiles,metadata} \
+    && echo 'crossdev' > /var/db/repos/crossdev/profiles/repo_name \
+    && echo -e 'masters = gentoo\nthin-manifests = true' > /var/db/repos/crossdev/metadata/layout.conf \
+    && chown -R portage:portage /var/db/repos/crossdev
 
-# Configure crossdev with specific versions and output overlay
-RUN crossdev --ov-output /usr/local/portage --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET}
+# Instruct Portage to use the new ebuild repository
+RUN mkdir -p /etc/portage/repos.conf \
+    && echo -e '[crossdev]\nlocation = /var/db/repos/crossdev\npriority = 10\nmasters = gentoo\nauto-sync = no' > /etc/portage/repos.conf/crossdev.conf
+
+# Configure crossdev with specific versions
+RUN crossdev --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET}
 
 # Create a non-root user for security purposes
 RUN useradd -m -G users,distcc crossdevuser
