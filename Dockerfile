@@ -18,7 +18,7 @@ ARG BINUTILS_VER
 ARG GCC_VER
 ARG KERNEL_VER
 ARG LIBC_VER
-ARG CROSSDEV_TARGET=ppc-unknown-linux-gnu
+ARG CROSSDEV_TARGET=powerpc-unknown-linux-gnu
 
 # Manually create a crossdev repository
 RUN mkdir -p /var/db/repos/crossdev/{profiles,metadata} \
