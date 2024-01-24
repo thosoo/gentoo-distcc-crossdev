@@ -19,7 +19,7 @@ This project provides a Docker setup for cross-compiling for Gentoo PPC32 using 
 
 1. Clone the repository:
 ```
-git clone https://github.com/yourusername/gentoo-ppc32-cross-compile.git
+git clone https://github.com/thosoo/gentoo-distcc-crossdev.git
 ```
 2. Navigate to the cloned directory:
 ```
@@ -27,7 +27,7 @@ cd gentoo-distcc-crossdev
 ```
 3. Build and run the Docker container:
 ```
-docker-compose up --build
+docker compose up --build
 ```
 ## Configuration
 
