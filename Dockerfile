@@ -18,10 +18,13 @@ ARG BINUTILS_VER
 ARG GCC_VER
 ARG KERNEL_VER
 ARG LIBC_VER
-ARG CROSSDEV_TARGET=ppc32-unknown-linux-gnu
+ARG CROSSDEV_TARGET=ppc-unknown-linux-gnu
 
-# Configure crossdev with specific versions
-RUN crossdev --b "${BINUTILS_VER}" --g "${GCC_VER}" --k "${KERNEL_VER}" --l "${LIBC_VER}" -t ${CROSSDEV_TARGET}
+# Create an overlay directory
+RUN mkdir -p /usr/local/portage
+
+# Configure crossdev with specific versions and output overlay
+RUN crossdev --ov-output /usr/local/portage --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET}
 
 # Create a non-root user for security purposes
 RUN useradd -m -G users,distcc crossdevuser
