@@ -1,5 +1,5 @@
 # Use Gentoo stage3 AMD64 as the base image
-FROM gentoo/stage3-amd64
+FROM gentoo/stage3:amd64-openrc
 
 # Update the system and sync portage
 RUN emerge-webrsync
