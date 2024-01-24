@@ -6,10 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BINUTILS_VER: "2.34" # Replace with the actual version
-        GCC_VER: "9.3.0"     # Replace with the actual version
-        KERNEL_VER: "5.4"    # Replace with the actual version
-        LIBC_VER: "2.31"     # Replace with the actual version
+        BINUTILS_VER: "2.41" # Replace with the actual version
+        GCC_VER: "11.4.1"     # Replace with the actual version
+        KERNEL_VER: "6.6.13"    # Replace with the actual version
+        LIBC_VER: "2.38"     # Replace with the actual version
     environment:
       DISTCCD_JOBS: 4
       DISTCCD_ALLOW: "192.168.1.100" # Replace with your IP or range
