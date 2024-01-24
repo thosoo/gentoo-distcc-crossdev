@@ -5,7 +5,7 @@ FROM gentoo/stage3:amd64-openrc
 RUN emerge-webrsync
 
 # Install necessary packages including distcc, crossdev, git
-RUN emerge distcc crossdev git
+RUN emerge distcc crossdev acct-user/git
 
 # Set environment variables for distccd configuration
 ENV DISTCCD_JOBS=4 \
