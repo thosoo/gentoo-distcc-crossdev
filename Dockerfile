@@ -21,7 +21,7 @@ ARG LIBC_VER
 ARG CROSSDEV_TARGET=ppc32-unknown-linux-gnu
 
 # Configure crossdev with specific versions
-RUN crossdev --b "${BINUTILS_VER}" --g "${GCC_VER}" --k "${KERNEL_VER}" --l "${LIBC_VER}" --target ${CROSSDEV_TARGET}
+RUN crossdev --b "${BINUTILS_VER}" --g "${GCC_VER}" --k "${KERNEL_VER}" --l "${LIBC_VER}" -t ${CROSSDEV_TARGET}
 
 # Create a non-root user for security purposes
 RUN useradd -m -G users,distcc crossdevuser
