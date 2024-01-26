@@ -14,6 +14,7 @@ ENV DISTCCD_JOBS=4 \
     DISTCCD_LOG_FILE=/var/log/distcc.log
 
 # Set environment variables for crossdev versions
+ARG STABLE
 ARG BINUTILS_VER
 ARG GCC_VER
 ARG KERNEL_VER
@@ -30,8 +31,12 @@ RUN mkdir -p /var/db/repos/crossdev/{profiles,metadata} \
 RUN mkdir -p /etc/portage/repos.conf \
     && echo -e '[crossdev]\nlocation = /var/db/repos/crossdev\npriority = 10\nmasters = gentoo\nauto-sync = no' > /etc/portage/repos.conf/crossdev.conf
 
-# Configure crossdev with specific versions
-RUN crossdev --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET}
+# Conditional execution based on STABLE
+RUN if [ "$STABLE" = "yes" ]; then \
+        crossdev --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET} --show-fail-log; \
+    else \
+        crossdev -S --target ${CROSSDEV_TARGET} --show-fail-log; \
+    fi
 
 # Create a non-root user for security purposes
 RUN useradd -m -G users,distcc crossdevuser
