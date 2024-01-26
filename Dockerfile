@@ -33,9 +33,9 @@ RUN mkdir -p /etc/portage/repos.conf \
 
 # Conditional execution based on STABLE
 RUN if [ "$STABLE" = "yes" ]; then \
-        crossdev --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET} --show-fail-log; \
-    else \
         crossdev -S --target ${CROSSDEV_TARGET} --show-fail-log; \
+    else \
+        crossdev --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET} --show-fail-log; \
     fi
 
 # Create a non-root user for security purposes
