@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        STABLE: "yes"  # Use "yes" for stable, "no" for finetuned binutils,gcc,kernel,libc
+        STABLE_BUILD: "yes"  # Use "yes" for stable, "no" for finetuned binutils,gcc,kernel,libc
         BINUTILS_VER: "2.41" # Replace with the actual version if unstable
         GCC_VER: "11.4.1"     # Replace with the actual version
         KERNEL_VER: "6.6.13"    # Replace with the actual version
@@ -14,9 +14,9 @@ services:
         CROSSDEV_TARGET: "powerpc-unknown-linux-gnu" # Replace with tuple
     environment:
       DISTCCD_JOBS: 4
-      DISTCCD_ALLOW: "192.168.1.100" # Replace with your IP or range
+      DISTCCD_ALLOW: "192.168.1.0/0" # Replace with your IP or range
       DISTCCD_LOG_LEVEL: info
-      DISTCCD_LOG_FILE: /var/log/distcc.log
+      DISTCCD_LOG_FILE: /home/crossdevuser/distcc.log
     volumes:
       - ./src:/src
     ports:
