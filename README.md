@@ -1,12 +1,12 @@
-# Gentoo PPC32 Cross-Compile Docker Project
+# Gentoo Multi-Arch Cross-Compile Docker Project
 
-This project provides a Docker setup for cross-compiling for Gentoo PPC32 using `distcc` and `crossdev`, running natively on AMD64.
+This project provides a Docker setup for cross-compiling for Gentoo using `distcc` and `crossdev`, running natively on AMD64. It builds stable toolchains for **arm64**, **arm**, **ppc32**, and **x86** targets.
 
 ## Features
 
 - Gentoo Stage3 AMD64 base image.
 - `distcc` and `crossdev` for efficient cross-compiling.
-- Configuration for PPC32 cross-compilation.
+- Stable toolchains for arm64, arm, ppc32, and x86 cross-compilation.
 - Customizable `distccd` and `crossdev` settings.
 
 ## Getting Started
