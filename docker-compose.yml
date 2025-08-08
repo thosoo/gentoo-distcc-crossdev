@@ -1,28 +1,19 @@
 version: '3'
 
 services:
-  gentoo-cross-compile:
+  distcc:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        STABLE_BUILD: "yes"  # Use "yes" for stable, "no" for finetuned binutils,gcc,kernel,libc
-        BINUTILS_VER: "2.41" # Replace with the actual version if unstable
-        GCC_VER: "11.4.1"     # Replace with the actual version
-        KERNEL_VER: "6.6.13"    # Replace with the actual version
-        LIBC_VER: "2.38"     # Replace with the actual version
-        CROSSDEV_TARGET: "powerpc-unknown-linux-gnu" # Replace with tuple
-    environment:
-      DISTCCD_JOBS: 4
-      DISTCCD_ALLOW: "192.168.1.0/0" # Replace with your IP or range
-      DISTCCD_LOG_LEVEL: info
-      DISTCCD_LOG_FILE: /home/crossdevuser/distcc.log
-    volumes:
-      - ./src:/src
+        CROSS_TARGETS: |
+          armv7a-unknown-linux-gnueabihf
+          aarch64-unknown-linux-gnu
+          powerpc-unknown-linux-gnu
     ports:
       - "3632:3632"
-    networks:
-      - crossnet
+    volumes:
+      - distcc-ccache:/var/cache/ccache
 
-networks:
-  crossnet:
+volumes:
+  distcc-ccache:

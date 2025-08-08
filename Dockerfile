@@ -1,54 +1,53 @@
-# Use Gentoo stage3 AMD64 as the base image
+# Gentoo stage3 base image
 FROM gentoo/stage3:amd64-openrc
 
-# Update the system and sync portage
-RUN emerge-webrsync
+# Install distcc, crossdev and ccache
+RUN emerge-webrsync \
+    && emerge --verbose --update --newuse --deep \
+        app-portage/crossdev \
+        sys-devel/distcc \
+        dev-util/ccache
 
-# Install necessary packages including distcc, crossdev, git
-RUN emerge distcc crossdev
-
-# Set environment variables for distccd configuration
-ENV DISTCCD_JOBS=4 \
-    DISTCCD_ALLOW=192.168.1.0/0 \
-    DISTCCD_LOG_LEVEL=info \
-    DISTCCD_LOG_FILE=/home/crossdevuser/distcc.log
-
-# Set environment variables for crossdev versions
-ARG STABLE_BUILD
-ARG BINUTILS_VER
-ARG GCC_VER
-ARG KERNEL_VER
-ARG LIBC_VER
-ARG CROSSDEV_TARGET=powerpc-unknown-linux-gnu
-
-# Manually create a crossdev repository
+# Prepare dedicated crossdev repository
 RUN mkdir -p /var/db/repos/crossdev/{profiles,metadata} \
-    && echo 'crossdev' > /var/db/repos/crossdev/profiles/repo_name \
-    && echo -e 'masters = gentoo\nthin-manifests = true' > /var/db/repos/crossdev/metadata/layout.conf \
-    && chown -R portage:portage /var/db/repos/crossdev
+    && echo crossdev > /var/db/repos/crossdev/profiles/repo_name \
+    && printf 'masters = gentoo\nthin-manifests = true\n' \
+         > /var/db/repos/crossdev/metadata/layout.conf \
+    && chown -R portage:portage /var/db/repos/crossdev \
+    && mkdir -p /etc/portage/repos.conf \
+    && printf '[crossdev]\nlocation = /var/db/repos/crossdev\npriority = 10\nmasters = gentoo\nauto-sync = no\n' \
+         > /etc/portage/repos.conf/crossdev.conf
 
-# Instruct Portage to use the new ebuild repository
-RUN mkdir -p /etc/portage/repos.conf \
-    && echo -e '[crossdev]\nlocation = /var/db/repos/crossdev\npriority = 10\nmasters = gentoo\nauto-sync = no' > /etc/portage/repos.conf/crossdev.conf
+# Install multiple cross toolchains
+ARG CROSS_TARGETS="powerpc-unknown-linux-gnu"
+RUN for T in $CROSS_TARGETS ; do \
+        crossdev --stable -t "$T" ; \
+    done
 
-# Conditional execution based on STABLE
-RUN if [ "${STABLE_BUILD}" = "yes" ]; then \
-        crossdev -S --target ${CROSSDEV_TARGET} --show-fail-log; \
-    else \
-        crossdev --b "~${BINUTILS_VER}" --g "~${GCC_VER}" --k "~${KERNEL_VER}" --l "~${LIBC_VER}" --target ${CROSSDEV_TARGET} --show-fail-log; \
-    fi
+# Create distcc masquerade links for all compilers
+RUN DISTCCD_MASQ=/usr/lib/distcc/bin && \
+    mkdir -p $DISTCCD_MASQ && \
+    for p in $(printf '%s\n' $CROSS_TARGETS | \
+               xargs -I{} echo '/usr/{}/bin/{}-*' | xargs ls -1) ; do \
+        ln -s "$p" "$DISTCCD_MASQ/$(basename "$p")" ; \
+    done && \
+    ln -s $(type -P gcc)  $DISTCCD_MASQ/gcc && \
+    ln -s $(type -P g++) $DISTCCD_MASQ/g++
 
-# Create a non-root user for security purposes
-RUN useradd -m -G users,distcc crossdevuser
+# Make masquerade directory take precedence
+ENV PATH="/usr/lib/distcc/bin:${PATH}" \
+    DISTCC_VERBOSE=1 \
+    CCACHE_DIR=/var/cache/ccache
 
-# Switch to the non-root user
+# Create unprivileged user and ccache directory
+RUN useradd -m -G users,distcc crossdevuser \
+    && mkdir -p /var/cache/ccache \
+    && chown -R crossdevuser:users /var/cache/ccache
+
 USER crossdevuser
-
-# Set working directory
 WORKDIR /home/crossdevuser
 
-# Expose distcc port
 EXPOSE 3632
 
-# Default command to keep the container running
-CMD ["sh", "-c", "distccd --daemon --no-detach --jobs $DISTCCD_JOBS --allow $DISTCCD_ALLOW --log-level $DISTCCD_LOG_LEVEL --log-file $DISTCCD_LOG_FILE"]
+ENTRYPOINT ["/usr/bin/distccd", "--daemon", "--no-detach", "--log-level", "info", \
+            "--user", "crossdevuser", "--allow", "0.0.0.0/0", "--port", "3632"]
