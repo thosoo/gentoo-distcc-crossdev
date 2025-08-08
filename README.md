@@ -1,13 +1,14 @@
-# Gentoo PPC32 Cross-Compile Docker Project
+# Gentoo Multi-Arch Cross-Compile Docker Project
 
-This project provides a Docker setup for cross-compiling for Gentoo PPC32 using `distcc` and `crossdev`, running natively on AMD64.
+This project provides a Docker setup for building multiple Gentoo cross-compilers with `crossdev` and exposing them via `distcc` on a single container. One instance can serve ARM, AArch64, PowerPC or any other target simultaneously on TCP port 3632.
 
 ## Features
 
 - Gentoo Stage3 AMD64 base image.
-- `distcc` and `crossdev` for efficient cross-compiling.
-- Configuration for PPC32 cross-compilation.
-- Customizable `distccd` and `crossdev` settings.
+- `crossdev` builds several cross toolchains specified via `CROSS_TARGETS`.
+- Compilers are linked into the `distcc` masquerade directory so a single daemon exposes them all.
+- `ccache` support for faster rebuilds.
+- Configures a dedicated `crossdev` Portage repository and runs `distccd` as the unprivileged `crossdevuser`.
 
 ## Getting Started
 
@@ -18,21 +19,31 @@ This project provides a Docker setup for cross-compiling for Gentoo PPC32 using 
 ### Installation
 
 1. Clone the repository:
-```
-git clone https://github.com/thosoo/gentoo-distcc-crossdev.git
-```
+   ```
+   git clone https://github.com/thosoo/gentoo-distcc-crossdev.git
+   ```
 2. Navigate to the cloned directory:
-```
-cd gentoo-distcc-crossdev
-```
+   ```
+   cd gentoo-distcc-crossdev
+   ```
 3. Build and run the Docker container:
-```
-docker compose up --build
-```
-## Configuration
+   ```
+   docker compose up --build
+   ```
 
-- You can adjust `distccd` and `crossdev` settings in the `docker-compose.yml` file.
-- For advanced configuration, modify the Dockerfile as per your requirements.
+The default `docker-compose.yml` builds toolchains for `armv7a-unknown-linux-gnueabihf`, `aarch64-unknown-linux-gnu` and `powerpc-unknown-linux-gnu`. Edit the `CROSS_TARGETS` build argument in `docker-compose.yml` to customise this list.
+
+## Using the distcc server
+
+Point your clients at the container and call the prefixed compilers. Example for an AArch64 client:
+
+```sh
+export DISTCC_HOSTS="<container-ip>:3632/12,lzo"
+export CC="distcc aarch64-unknown-linux-gnu-gcc"
+make -j24
+```
+
+`distcc` will dispatch compilation to the container and automatically pick the right toolchain based on the compiler prefix.
 
 ## License
 
