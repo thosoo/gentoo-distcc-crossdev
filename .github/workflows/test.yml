@@ -31,4 +31,4 @@ jobs:
       # ...
 
       - name: Docker Compose Down
-        run: docker-compose down
+        run: docker compose down
