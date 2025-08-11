@@ -25,7 +25,7 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Build and run with Docker Compose
-        run: docker-compose up --build -d
+        run: docker compose up --build -d
 
       # Add additional steps for running tests or other checks here.
       # ...
