@@ -21,7 +21,7 @@ ARG GCC_VER
 ARG KERNEL_VER
 ARG LIBC_VER
 # Available arches: amd64 alpha arm arm64 hppa loong mips m68k ppc riscv s390 sparc x86
-ARG CROSSDEV_TARGETS="aarch64-unknown-linux-gnu arm-unknown-linux-gnueabi powerpc-unknown-linux-gnu i686-pc-linux-gnu"
+ARG CROSSDEV_TARGETS="i686-pc-linux-gnu"
 
 # Manually create a crossdev repository
 RUN mkdir -p /var/db/repos/crossdev/{profiles,metadata} \
